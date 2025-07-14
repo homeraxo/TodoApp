@@ -1,0 +1,74 @@
+﻿<Window x:Class="TodoApp.Client.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TodoApp.Client"
+        mc:Ignorable="d"
+        Title="Aplicación de Tareas en Tiempo Real" Height="600" Width="800">
+    <Window.DataContext>
+        <viewmodels:TaskListViewModel/>
+    </Window.DataContext>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
+            <TextBox Text="{Binding NewTaskTitle, UpdateSourceTrigger=PropertyChanged}" Width="200" Margin="0,0,10,0"
+                     ToolTip="Título de la nueva tarea"/>
+            <TextBox Text="{Binding NewTaskDescription, UpdateSourceTrigger=PropertyChanged}" Width="300" Margin="0,0,10,0"
+                     ToolTip="Descripción de la nueva tarea"/>
+            <Button Content="Añadir Tarea" Command="{Binding AddTaskCommand}"/>
+        </StackPanel>
+
+        <ListBox Grid.Row="1" ItemsSource="{Binding Tasks}" Margin="10">
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="{x:Type viewmodels:TaskItemViewModel}">
+                    <Border BorderBrush="LightGray" BorderThickness="1" Margin="0,5" Padding="5">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <CheckBox Grid.Column="0" Grid.Row="0" IsChecked="{Binding IsCompleted}" Margin="0,0,10,0" VerticalAlignment="Center"
+                                      Command="{Binding ToggleCompleteCommand}"
+                                      IsEnabled="{Binding CanEdit}"/>
+                            <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
+                                     FontWeight="Bold" FontSize="14" IsReadOnly="{Binding Path=IsEditing, Converter={StaticResource InverseBooleanConverter}}"/>
+                            <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
+                                     TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="{Binding Path=IsEditing, Converter={StaticResource InverseBooleanConverter}}"/>
+
+                            <StackPanel Grid.Column="2" Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="5,0,0,0">
+                                <TextBlock Text="🔒" Visibility="{Binding IsLocked, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                           ToolTip="Tarea bloqueada por otro usuario"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0">
+                                <Button Content="Editar" Command="{Binding StartEditCommand}" Margin="5,0"
+                                        Visibility="{Binding IsEditing, Converter={StaticResource InverseBooleanConverter}}"
+                                        IsEnabled="{Binding CanEdit}"/>
+                                <Button Content="Guardar" Command="{Binding SaveEditCommand}" Margin="5,0"
+                                        Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                <Button Content="Cancelar" Command="{Binding CancelEditCommand}" Margin="5,0"
+                                        Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                <Button Content="Eliminar" Command="{Binding DeleteCommand}" Margin="5,0"
+                                        IsEnabled="{Binding CanEdit}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</Window>
